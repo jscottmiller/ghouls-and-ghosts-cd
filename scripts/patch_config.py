@@ -24,9 +24,10 @@ FILTER_92_TRACK = (3, True)  # ID $92 special case, handled inside $878
 # Audio source files (repo-relative), in CD track order.
 AUDIO_TRACKS = [f"assets/audio/{n:02d}.flac" for n in range(1, 7)]
 
-# Output naming. ROM and cue must share a basename (MSU-MD convention).
+# Output naming. ROM, cue, AND soundpack bin must all share one basename —
+# the Mega Everdrive Pro requires exact-match filenames for all three.
 OUTPUT_BASENAME = "GhoulsnGhostsCD"
-SOUNDPACK_NAME = "gng-saturn-soundpack.bin"
+SOUNDPACK_NAME = f"{OUTPUT_BASENAME}.bin"
 
 # Original ROM facts.
 ROM_FILE = "assets/rom/Ghouls'n Ghosts (World) (Rev A).md"
