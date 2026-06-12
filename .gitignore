@@ -1,0 +1,11 @@
+# Copyrighted source assets — bring your own. See README.md and assets/manifest.sha256.
+assets/rom/
+assets/audio/
+
+# Build output
+build/
+
+# Editor/OS noise
+*.swp
+.DS_Store
+Thumbs.db
