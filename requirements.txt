@@ -1,0 +1,6 @@
+# Build dependencies (pip install -r requirements.txt)
+soundfile>=0.12   # FLAC decoding for the soundpack builder
+numpy>=1.24
+
+# Optional, for development/verification only:
+# capstone>=5.0   # 68k disassembly checks

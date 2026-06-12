@@ -80,6 +80,77 @@ def apply_bps(patch, source):
     return bytes(target), metadata
 
 
+def write_varint(value):
+    out = bytearray()
+    while True:
+        x = value & 0x7F
+        value >>= 7
+        if value == 0:
+            out.append(x | 0x80)
+            return bytes(out)
+        out.append(x)
+        value -= 1
+
+
+def create_bps(source, target):
+    """Create a BPS patch from source to target.
+
+    Simple encoder: SourceRead for matching runs, TargetRead for new bytes,
+    with an RLE pass (overlapped TargetCopy) for long repeated runs such as
+    ROM padding. Good enough for hook patches; not a general delta encoder.
+    """
+    out = bytearray(b"BPS1")
+    out += write_varint(len(source))
+    out += write_varint(len(target))
+    out += write_varint(0)  # no metadata
+
+    actions = []  # ('sr'|'tr'|'rle', start, length)
+    n = len(target)
+    i = 0
+    while i < n:
+        if i < len(source) and source[i] == target[i]:
+            start = i
+            while i < n and i < len(source) and source[i] == target[i]:
+                i += 1
+            actions.append(("sr", start, i - start))
+            continue
+        # new/changed bytes: check for a repeated-byte run worth RLE'ing
+        start = i
+        while i < n and not (i < len(source) and source[i] == target[i]):
+            run = 1
+            while i + run < n and target[i + run] == target[i]:
+                run += 1
+            if run >= 32:
+                if i > start:
+                    actions.append(("tr", start, i - start))
+                actions.append(("tr", i, 1))
+                actions.append(("rle", i + 1, run - 1))
+                i += run
+                start = i
+            else:
+                i += run
+        if i > start:
+            actions.append(("tr", start, i - start))
+
+    tgt_rel = 0
+    for kind, start, length in actions:
+        if kind == "sr":
+            out += write_varint(((length - 1) << 2) | 0)
+        elif kind == "tr":
+            out += write_varint(((length - 1) << 2) | 1)
+            out += target[start:start + length]
+        else:  # rle: TargetCopy overlapping forward copy from start-1
+            out += write_varint(((length - 1) << 2) | 3)
+            offset = (start - 1) - tgt_rel
+            out += write_varint((abs(offset) << 1) | (1 if offset < 0 else 0))
+            tgt_rel = (start - 1) + length
+
+    out += zlib.crc32(source).to_bytes(4, "little")
+    out += zlib.crc32(target).to_bytes(4, "little")
+    out += zlib.crc32(out).to_bytes(4, "little")
+    return bytes(out)
+
+
 def changed_regions(source, target, gap=16):
     """Yield (start, end) ranges where target differs from source.
 
