@@ -23,6 +23,8 @@ LEVEL_THEMES = {
 # to the FM driver untouched. Add boss/cue IDs here as they're identified
 # (issue #2: stage 2 boss ID still unknown).
 FILTER_TRACKS = {
+    0x8E: (7, True),   # boss cue, suspected stage 1 (direct site $6D8A;
+                       # ArcadeTV mapped it to a 1:06 looped track)
     0x92: (7, True),   # stage 3 boss <- 11.flac boss arrangement (issue #3)
 }
 
@@ -66,7 +68,8 @@ FM_FALLBACK_SITES = [
     (0x006722, "imm",      0x8B,               SOUND_SEND_1C06),
     (0x00693A, "imm",      0x82,               SOUND_SEND_1C06),
     (0x006A5A, "imm",      0x8C,               SOUND_SEND_1C06),
-    (0x006D8A, "imm_tail", 0x8E,               SOUND_SEND_1C06),
+    # $6D8A ($8E) intentionally unhooked: the ID flows to $878 where the
+    # FILTER plays the boss track.
     (0x007534, "jsr",      0x8A,               SOUND_SEND_1C06),
     (0x00757E, "jsr",      0x9A,               SOUND_SEND_1C06),
     (0x0092CA, "jsr",      0x98,               SOUND_SEND_1C06),
