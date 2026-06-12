@@ -150,18 +150,27 @@ def generate_code(asm):
         asm.jmp_w(send)
 
     # FILTER: replaces `move.b d0,$A01C06` inside the $878 send routine.
-    # Special-cases music ID $92 (level-variant cue) onto a CD track.
-    track, loop = c.FILTER_92_TRACK
+    # Special-cases music ID $92 (stage 3 boss cue, see issue #3).
     asm.label("FILTER")
     asm.cmpi_b_imm_d0(0x92)
     asm.beq_s("FILTER_92")
     asm.move_b_d0_abs_l(0xA01C06)
     asm.rts()
     asm.label("FILTER_92")
-    asm.move_w_imm_d0((c.CMD_PLAY_LOOP if loop else c.CMD_PLAY) | track)
-    asm.bsr_w("SEND")
-    asm.move_b_d0_abs_l(0xA01C06)   # d0 = $FF -> mute FM music
-    asm.rts()
+    if c.FILTER_92_TRACK is None:
+        # No CD track mapped: stop the CD, let the FM cue play.
+        asm.move_l_d0_sp()
+        asm.move_w_imm_d0(c.CMD_STOP)
+        asm.bsr_w("SEND")
+        asm.move_l_sp_d0()
+        asm.move_b_d0_abs_l(0xA01C06)
+        asm.rts()
+    else:
+        track, loop = c.FILTER_92_TRACK
+        asm.move_w_imm_d0((c.CMD_PLAY_LOOP if loop else c.CMD_PLAY) | track)
+        asm.bsr_w("SEND")
+        asm.move_b_d0_abs_l(0xA01C06)   # d0 = $FF -> mute FM music
+        asm.rts()
 
     # DISPATCH: replaces `andi.w #$ff,d0 + bsr.w $878` at the scripted
     # music site -- the six level themes.
@@ -171,7 +180,9 @@ def generate_code(asm):
     for music_id, _ in items:
         asm.cmpi_b_imm_d0(music_id)
         asm.beq_s(f"LVL_{music_id:02X}")
-    asm.jmp_w(c.SOUND_SEND_1C06)    # not a level theme: pass through
+    # Not a level theme (e.g. a boss cue, issue #2): stop the CD so it
+    # doesn't keep looping under the FM music, then pass the ID through.
+    asm.jmp_l(asm.labels["CDSTOP_1C06"])
     for i, (music_id, (track, loop)) in enumerate(items):
         asm.label(f"LVL_{music_id:02X}")
         asm.move_w_imm_d0((c.CMD_PLAY_LOOP if loop else c.CMD_PLAY) | track)

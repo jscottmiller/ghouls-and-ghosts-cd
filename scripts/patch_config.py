@@ -9,8 +9,6 @@ then rebuild. Cues not mapped here fall back to the original FM music
 # CD track numbers refer to the cue sheet built by build_disc.py.
 #
 # The six level themes are scripted cues dispatched at $39CE.
-# $92 is a mid-level cue adjacent to the level 3/4 themes (suspected level
-# variant); mapped to the level 3 arrangement for musical continuity.
 LEVEL_THEMES = {
     0x8D: (1, True),   # level 1 <- 01.flac
     0x8F: (2, True),   # level 2 <- 02.flac
@@ -19,7 +17,11 @@ LEVEL_THEMES = {
     0x95: (5, True),   # level 5 <- 05.flac
     0x97: (6, True),   # level 6 <- 06.flac
 }
-FILTER_92_TRACK = (3, True)  # ID $92 special case, handled inside $878
+# ID $92 arrives via $878 and is handled by the FILTER hook. Playtesting
+# showed it is the stage 3 boss cue (issue #3), not a level variant:
+# None = stop the CD and pass through to FM; set (track, loop) once the
+# boss arrangement is identified in the Saturn rip.
+FILTER_92_TRACK = None
 
 # Audio source files (repo-relative), in CD track order.
 AUDIO_TRACKS = [f"assets/audio/{n:02d}.flac" for n in range(1, 7)]
