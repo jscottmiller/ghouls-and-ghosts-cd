@@ -17,14 +17,19 @@ LEVEL_THEMES = {
     0x95: (5, True),   # level 5 <- 05.flac
     0x97: (6, True),   # level 6 <- 06.flac
 }
-# ID $92 arrives via $878 and is handled by the FILTER hook. Playtesting
-# showed it is the stage 3 boss cue (issue #3), not a level variant:
-# None = stop the CD and pass through to FM; set (track, loop) once the
-# boss arrangement is identified in the Saturn rip.
-FILTER_92_TRACK = None
+# Music IDs handled by the FILTER hook inside the $878 send routine, which
+# sees every ID on that path (including scripted-dispatcher passthroughs).
+# Mapped IDs play their CD track and mute FM; anything else passes through
+# to the FM driver untouched. Add boss/cue IDs here as they're identified
+# (issue #2: stage 2 boss ID still unknown).
+FILTER_TRACKS = {
+    0x92: (7, True),   # stage 3 boss <- 11.flac boss arrangement (issue #3)
+}
 
 # Audio source files (repo-relative), in CD track order.
-AUDIO_TRACKS = [f"assets/audio/{n:02d}.flac" for n in range(1, 7)]
+AUDIO_TRACKS = [f"assets/audio/{n:02d}.flac" for n in range(1, 7)] + [
+    "assets/audio/11.flac",   # track 7: boss theme
+]
 
 # Output naming. ROM, cue, AND soundpack bin must all share one basename —
 # the Mega Everdrive Pro requires exact-match filenames for all three.

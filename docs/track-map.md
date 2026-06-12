@@ -33,7 +33,7 @@ and ArcadeTV's track multiplicity are known.
 | `$8E` | 6 | boss theme(?) — 1:06 loop in ArcadeTV's pack | |
 | `$8F` (scripted) | 8 | level 2 theme | 02.flac |
 | `$91` (scripted) | 10 | level 3 theme | 03.flac |
-| `$92` (filtered) | 11 | level theme variant(?) — ID sits between the level 3/4 themes; 1:37 loop | |
+| `$92` (filtered) | 11 | **stage 3 boss** (confirmed in playtesting) | 11.flac |
 | `$93` (scripted) | 12 | level 4 theme | 04.flac |
 | `$94` | 13 | | |
 | `$95` (scripted) | 14 | level 5 theme | 05.flac |
@@ -61,7 +61,7 @@ game cue(s) it should cover. Durations suggest 10 substantial pieces and
 | 08.flac | 4:00 | | |
 | 09.flac | 4:02 | | |
 | 10.flac | 0:07 | jingle | |
-| 11.flac | 1:46 | | |
+| 11.flac | 1:46 | boss theme (per Scott) | `$92` (CD track 7); other boss IDs TBD |
 | 12.flac | 1:02 | | |
 | 13.flac | 0:50 | | |
 | 14.flac | 1:02 | | |
