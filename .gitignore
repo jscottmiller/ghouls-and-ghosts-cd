@@ -9,3 +9,6 @@ build/
 *.swp
 .DS_Store
 Thumbs.db
+
+# Third-party research material (not ours to redistribute)
+research/
