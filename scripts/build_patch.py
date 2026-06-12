@@ -58,6 +58,10 @@ class Asm:
     def move_l_d1_sp(self):             self.w(0x2F01)
     def move_l_sp_d1(self):             self.w(0x221F)
     def move_w_imm_d1(self, imm):       self.w(0x323C, imm & 0xFFFF)
+    def move_w_imm_d2(self, imm):       self.w(0x343C, imm & 0xFFFF)
+    def tst_w_d0(self):                 self.w(0x4A40)
+    def cmpi_b_imm_abs_l(self, imm, addr):
+        self.w(0x0C39, imm & 0xFF); self.l(addr)
     def nop(self):                      self.w(0x4E71)
     def rts(self):                      self.w(0x4E75)
     def jsr_w(self, addr):              self.w(0x4EB8, addr & 0xFFFF)
@@ -89,6 +93,9 @@ class Asm:
 
     def dbra_d1(self, target):
         self.fixups.append((len(self.buf), "b16", target)); self.w(0x51C9, 0)
+
+    def dbra_d2(self, target):
+        self.fixups.append((len(self.buf), "b16", target)); self.w(0x51CA, 0)
 
     def bsr_w(self, target):
         self.fixups.append((len(self.buf), "b16", target)); self.w(0x6100, 0)
@@ -199,33 +206,43 @@ def generate_code(asm):
             asm.jmp_l(asm.labels[helper])
         # 'jsr'/'jmp' kinds retarget in place; no stub needed.
 
-    # PAUSE/RESUME: command written immediately (no wait, no registers
-    # clobbered beyond the displaced instruction's effect), matching the
-    # play-tested behavior of ArcadeTV's patch.
+    # PAUSE/RESUME: commands go through SEND (waits for driver-ready;
+    # writing the gate array while the driver is busy desyncs the command
+    # clock on real hardware). d0 is preserved for the interrupted code.
     asm.label("PAUSE")
     asm.move_w_imm_abs_w(0x0001, 0xF63A)        # displaced original
-    asm.move_w_imm_abs_l(c.CMD_PAUSE_FADE, 0xA12010)
-    asm.addq_b_1_abs_l(0xA1201F)
+    asm.move_l_d0_sp()
+    asm.move_w_imm_d0(c.CMD_PAUSE_FADE)
+    asm.bsr_w("SEND")
+    asm.move_l_sp_d0()
     asm.rts()
 
     asm.label("RESUME")
     asm.move_w_imm_abs_w(0x0000, 0xF63A)        # displaced original
-    asm.move_w_imm_abs_l(c.CMD_RESUME, 0xA12010)
-    asm.addq_b_1_abs_l(0xA1201F)
+    asm.move_l_d0_sp()
+    asm.move_w_imm_d0(c.CMD_RESUME)
+    asm.bsr_w("SEND")
+    asm.move_l_sp_d0()
     asm.rts()
 
     # TITLE: runs in the title/sound-init path. Stops any CD playback
     # (e.g. returning to title with a level theme looping), then performs
     # the displaced original work.
     asm.label("TITLE")
-    asm.move_w_imm_abs_l(c.CMD_STOP, 0xA12010)
-    asm.addq_b_1_abs_l(0xA1201F)
+    asm.move_l_d0_sp()
+    asm.move_w_imm_d0(c.CMD_STOP)
+    asm.bsr_w("SEND")
+    asm.move_l_sp_d0()
     asm.jsr_w(c.SOUND_INIT_CE6)                 # displaced original bsr
     asm.move_w_imm_abs_l(0x0100, 0xA11100)      # displaced original busreq
     asm.rts()
 
-    # ENTRY: new reset target. TMSS unlock, driver init, volume, then the
-    # original entry point.
+    # ENTRY: new reset target. TMSS unlock, driver init, then the canonical
+    # two-phase ready handshake (status -> 1 while the sub-CPU initializes,
+    # then -> 0 when ready; see krikzz's msu-md-sample). Issuing commands
+    # before this completes desyncs the command clock on real hardware
+    # (Mega Everdrive Pro) even though emulators are instant-ready. Both
+    # phases are bounded so a console with no CD hardware still boots.
     asm.label("ENTRY")
     asm.move_b_abs_l_d0(0xA10001)
     asm.andi_b_imm_d0(0x0F)
@@ -233,8 +250,31 @@ def generate_code(asm):
     asm.move_l_imm_abs_l(0x53454741, 0xA14000)  # 'SEGA'
     asm.label("ENTRY_notmss")
     asm.jsr_l(asm.labels["DRIVER"])
-    asm.move_w_imm_d0(cfg.CMD_VOLUME_MAX)
+    asm.tst_w_d0()
+    asm.bne_s("ENTRY_go")                       # 1 = no MCD: skip handshake
+    asm.move_w_imm_d2(8)                        # phase A: wait status == 1
+    asm.label("ENTRY_a_outer")
+    asm.move_w_imm_d1(0xFFFF)
+    asm.label("ENTRY_a_inner")
+    asm.cmpi_b_imm_abs_l(1, 0xA12020)
+    asm.beq_s("ENTRY_waitB")
+    asm.dbra_d1("ENTRY_a_inner")
+    asm.dbra_d2("ENTRY_a_outer")
+    asm.bra_s("ENTRY_go")                       # never began init: give up
+    asm.label("ENTRY_waitB")
+    asm.move_w_imm_d2(8)                        # phase B: wait status != 1
+    asm.label("ENTRY_b_outer")
+    asm.move_w_imm_d1(0xFFFF)
+    asm.label("ENTRY_b_inner")
+    asm.cmpi_b_imm_abs_l(1, 0xA12020)
+    asm.bne_s("ENTRY_ready")
+    asm.dbra_d1("ENTRY_b_inner")
+    asm.dbra_d2("ENTRY_b_outer")
+    asm.bra_s("ENTRY_go")
+    asm.label("ENTRY_ready")
+    asm.move_w_imm_d0(c.CMD_VOLUME_MAX)
     asm.bsr_w("SEND")
+    asm.label("ENTRY_go")
     asm.jmp_w(c.ORIGINAL_ENTRY)
 
     asm.resolve()
