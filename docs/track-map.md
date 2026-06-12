@@ -30,7 +30,7 @@ and ArcadeTV's track multiplicity are known.
 | `$8B` | 4 | | |
 | `$8C` | 21 | | |
 | `$8D` (scripted) | 5 | level 1 theme | 01.flac |
-| `$8E` | 6 | boss cue, suspected stage 1 — distinct 1:06 loop in ArcadeTV's pack | 11.flac (provisional; may deserve its own track) |
+| `$8E` | 6 | **stage 1 boss** (confirmed in playtesting) | 11.flac (shared with `$92`; ArcadeTV used distinct tracks, so a second boss arrangement may exist) |
 | `$8F` (scripted) | 8 | level 2 theme | 02.flac |
 | `$91` (scripted) | 10 | level 3 theme | 03.flac |
 | `$92` (filtered) | 11 | **stage 3 boss** (confirmed in playtesting) | 11.flac |

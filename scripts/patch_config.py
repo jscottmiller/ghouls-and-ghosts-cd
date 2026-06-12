@@ -23,8 +23,9 @@ LEVEL_THEMES = {
 # to the FM driver untouched. Add boss/cue IDs here as they're identified
 # (issue #2: stage 2 boss ID still unknown).
 FILTER_TRACKS = {
-    0x8E: (7, True),   # boss cue, suspected stage 1 (direct site $6D8A;
-                       # ArcadeTV mapped it to a 1:06 looped track)
+    0x8E: (7, True),   # stage 1 boss (confirmed in playtesting; direct
+                       # site $6D8A). May get its own track if a second
+                       # boss arrangement turns up in the Saturn rip.
     0x92: (7, True),   # stage 3 boss <- 11.flac boss arrangement (issue #3)
 }
 
