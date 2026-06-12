@@ -53,7 +53,7 @@ X68000 soundpack layout (28 tracks); ours will differ.
 | `$0020AC`, `$0020F8` | `$88` | 2 | once | two call sites, same stub |
 | `$0023D8` | `$84`–`$87` (computed `andi #3` + `$84`) | 3 | once | variants collapsed to one track |
 | `$006722` | `$8B` | 4 | once | |
-| `$0039CE` | scripted stream: `$8D/$8F/$91/$93/$95/$97` | 5/8/10/12/14/17 | loop | dispatcher; other IDs pass through to `$878` |
+| `$0039CE` | scripted stream: `$8D/$8F/$91/$93/$95/$97` | 5/8/10/12/14/17 | loop | **the six level themes** (read from per-level script data; ArcadeTV's tracks here are his six longest at 1:30–3:10) |
 | `$006D8A` | `$8E` | 6 | loop | |
 | `$01B38C` | `$83` | 7 | once | |
 | `$00A1F8` | `$89` | 20 | once | tail-call (`jmp`) |
@@ -63,7 +63,7 @@ X68000 soundpack layout (28 tracks); ours will differ.
 | `$00757E` | `$9A` | 18 | once | |
 | `$007534` | `$8A` | 19 | once | |
 | `$006A5A` | `$8C` | 21 | once | |
-| `$0024D8` | `$81` + level (from `$FEC6.w`) | level + 1 | once | stage-theme dispatch by level number |
+| `$0024D8` | `$81` + index (from `$FEC6.w`) | index + 1 | once | jingle-class dispatch — his tracks 1–4 are only 3–13 s long; index meaning TBD (NOT the stage themes) |
 | `$001DB6` (init) | — | 27 | once | played from the driver-init hook (title?) |
 | `$00693A` | `$82` | 22 | once | |
 | (filter in `$878`) | `$92` | 11 | loop | special-cased |

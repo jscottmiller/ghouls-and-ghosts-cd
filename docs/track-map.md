@@ -29,16 +29,16 @@ and ArcadeTV's track multiplicity are known.
 | `$8A` | 19 | | |
 | `$8B` | 4 | | |
 | `$8C` | 21 | | |
-| `$8D` (scripted) | 5 | | |
-| `$8E` | 6 | | |
-| `$8F` (scripted) | 8 | | |
-| `$91` (scripted) | 10 | | |
-| `$92` (filtered) | 11 | | |
-| `$93` (scripted) | 12 | | |
+| `$8D` (scripted) | 5 | level 1 theme | 01.flac |
+| `$8E` | 6 | boss theme(?) — 1:06 loop in ArcadeTV's pack | |
+| `$8F` (scripted) | 8 | level 2 theme | 02.flac |
+| `$91` (scripted) | 10 | level 3 theme | 03.flac |
+| `$92` (filtered) | 11 | level theme variant(?) — ID sits between the level 3/4 themes; 1:37 loop | |
+| `$93` (scripted) | 12 | level 4 theme | 04.flac |
 | `$94` | 13 | | |
-| `$95` (scripted) | 14 | | |
+| `$95` (scripted) | 14 | level 5 theme | 05.flac |
 | `$96` | 15 | | |
-| `$97` (scripted) | 17 | | |
+| `$97` (scripted) | 17 | level 6 theme | 06.flac |
 | `$98` | 16 | | |
 | `$9A` | 18 | | |
 | (boot/init hook) | 27 | title(?) | |
@@ -51,12 +51,12 @@ game cue(s) it should cover. Durations suggest 10 substantial pieces and
 
 | File | Length | Identified as | Maps to cue(s) |
 |---|---|---|---|
-| 01.flac | 3:52 | | |
-| 02.flac | 3:47 | | |
-| 03.flac | 4:16 | | |
-| 04.flac | 2:28 | | |
-| 05.flac | 3:50 | | |
-| 06.flac | 3:26 | | |
+| 01.flac | 3:52 | level 1 theme (per Scott) | `$8D` |
+| 02.flac | 3:47 | level 2 theme (per Scott) | `$8F` |
+| 03.flac | 4:16 | level 3 theme (per Scott) | `$91` |
+| 04.flac | 2:28 | level 4 theme (per Scott) | `$93` |
+| 05.flac | 3:50 | level 5 theme (per Scott) | `$95` |
+| 06.flac | 3:26 | level 6 theme (per Scott) | `$97` |
 | 07.flac | 3:59 | | |
 | 08.flac | 4:00 | | |
 | 09.flac | 4:02 | | |
