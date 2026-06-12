@@ -5,6 +5,13 @@ the original game, untouched except that the soundtrack plays as redbook CD
 audio, using the arranged Makaimura tracks from *Arthur to Astaroth no
 Nazomakaimura* (Saturn, 1996).
 
+**Status:** working v1 — the six level themes play from CD; all other cues
+fall back to the original FM music. Tested on RetroArch (Genesis Plus GX
+with MegaSD add-on emulation), and on real hardware via Mega Everdrive Pro
+on a Sega Nomad and a Model 2 Genesis. Known limitation: the Everdrive's
+CD core cannot work with a 32X attached (the 32X sits between the cart and
+the console bus); remove the 32X to play.
+
 ## What this repo contains
 
 Only original code, build scripts, and documentation. **No copyrighted
@@ -60,7 +67,38 @@ cue must share a basename — they already do).
   console, loading the game from CD. Significantly more involved — see the
   approach doc.
 
+## Built upon
+
+This project stands on prior work by the MSU-MD community:
+
+- **[krikzz's MSU-MD driver](https://github.com/krikzz/msu-md)** (MIT) does
+  all the heavy lifting of CD audio playback — vendored unmodified in
+  `vendor/msu-md/`, and its sample code defines the integration pattern
+  used here.
+- **ArcadeTV's MSU-MD patch for Ghouls'n Ghosts** (2020) proved this game
+  could be done and saved this project weeks of reverse engineering: the
+  hook map in [docs/hooks.md](docs/hooks.md) was recovered by diffing his
+  released BPS against the stock ROM. His patch source is no longer online;
+  see the [Zeldix thread](https://www.zeldix.net/t2212-ghouls-n-ghosts-md-msu-md).
+  This repo contains an independent reimplementation against a different
+  soundtrack, not his code.
+- Research and tooling from the wider scene: ValleyBell's SMPS
+  documentation, the SpritesMind community, and the
+  [MSU-MD patches wiki](https://arcadetv.github.io/msu-md-patches/).
+
+*Ghouls'n Ghosts* is © Capcom (Genesis port published by Sega); the
+arranged soundtrack is from Capcom's *Arthur to Astaroth no Nazomakaimura*
+(Saturn). This project does not grant you any rights to them — bring your
+own legally obtained copies.
+
+## AI disclosure
+
+This project was built with substantial use of AI tooling (Anthropic's
+Claude Code): the reverse engineering analysis, build scripts, generated
+68000 glue code, and documentation were produced in collaboration with it,
+with human direction, hardware testing, and review throughout.
+
 ## License
 
-Code in this repository: MIT (see LICENSE). Ghouls'n Ghosts and its music are
-© Capcom / Sega; this project does not grant you any rights to them.
+Code in this repository: MIT (see [LICENSE](LICENSE)). The vendored MSU-MD
+driver retains krikzz's MIT license (`vendor/msu-md/LICENSE`).
