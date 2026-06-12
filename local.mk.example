@@ -1,0 +1,3 @@
+# Copy to local.mk and edit. local.mk is gitignored.
+# DEPLOY_DIR: where `make` copies the ROM/cue/bin set after building.
+DEPLOY_DIR = /path/to/your/sd-staging/GhoulsnGhostsCD

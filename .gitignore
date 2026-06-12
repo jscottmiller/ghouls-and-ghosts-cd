@@ -13,3 +13,4 @@ Thumbs.db
 # Third-party research material (not ours to redistribute)
 research/
 __pycache__/
+local.mk
