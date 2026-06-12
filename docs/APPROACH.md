@@ -91,6 +91,46 @@ map, CD mastering), so Phase 1 is the right first milestone regardless.
 
 Risk: **high / research needed**, tracked separately.
 
+## Prior art & references
+
+- **MSU-MD driver** (krikzz): <https://github.com/krikzz/msu-md> — **MIT
+  licensed**, so we can vendor it. Mode 1 driver blob is linked into the cart
+  ROM and `jsr`'d at init (returns 0 on success, 1 if no Mega CD). Command
+  interface via the Mode 1 gate-array comm registers:
+  - `$A12010` command / `$A12011` argument
+  - `$A1201F` command clock (increment to latch)
+  - `$A12020` status (0 = ready, 1 = init, 2 = busy — spin until 0)
+  - Commands: `$11` play once (arg = track 1–99), `$12` play looped,
+    `$13` pause (arg = fade in 1/75 s), `$14` resume, `$15` volume (0–255),
+    `$16` seek-emulation toggle, `$1A` play with sector offset.
+- **An MSU-MD patch for Ghouls'n Ghosts already exists** (by ArcadeTV,
+  targeting the JUE REV 02 ROM), with MD+ conversion by PepilloPEV and
+  Arcade/X68000 soundpacks by Relikk:
+  <https://www.zeldix.net/t2212-ghouls-n-ghosts-md-msu-md>. ArcadeTV's GitHub
+  source is offline; the BPS survives via Zeldix / the archive.org MD+
+  collection. Diffing that BPS against the stock ROM is a fast way to recover
+  proven hook points. Our local ROM: `(World) (Rev A)`, CRC32 `4F2561D5`,
+  header serial `GM 00004013-02` — verify the existing patch's target CRC
+  before assuming compatibility.
+- **No boot-from-CD conversion of GnG exists** — Phase 2 would be novel work.
+  Best templates: Amy Farbright's Sonic 1 Mega CD port
+  (<https://foreverwip.github.io/projects/s1mcd.html>,
+  <https://github.com/foreverWIP/s1disasm/tree/MMD>) which streams the game
+  as MMD overlay modules into Word RAM; the megadev framework
+  (<https://github.com/drojaazu/megadev>); retrodev's Sega CD docs and
+  BuildSCD (<https://www.retrodev.com/segacd.html>).
+- **Sound driver**: classified by the community as "pre-SMPS Z80, Type 2,
+  Capcom mod" (<https://github.com/sonicretro/smps-rips>,
+  <https://www.vgmpf.com/Wiki/index.php?title=Mega_Drive%2FGenesis_Sound_Driver_List>).
+  ValleyBell's SMPS Research Pack / SMPSPlay
+  (<https://github.com/ValleyBell/SMPSPlay>) document the command set. No
+  full disassembly of the game exists; hansbonini's sega2asm has a
+  Daimakaimura config (<https://github.com/hansbonini/sega2asm>).
+- **Emulators for testing**: Genesis Plus GX (libretro) is the reference for
+  MSU-MD and MD+ (needs Sega CD BIOSes; ROM + CUE + audio in one dir). Kega
+  Fusion works with `CartBootEnabled=1`. BlastEm support is partial/shaky.
+  MiSTer plays MSU-MD via the MegaCD core.
+
 ## Audio source
 
 *Arthur to Astaroth no Nazomakaimura* (Saturn, 1996) — a Capcom puzzle
